@@ -1,0 +1,25 @@
+{
+  "bot_name": "BayAI Assistant",
+  "company_name": "Bayshore Communication",
+  "theme": {
+    "primary_color": "#807045",
+    "font_family": "Inter"
+  },
+  "behavior": {
+    "auto_open": false,
+    "open_delay": 2000,
+    "show_welcome_message": true
+  },
+  "content": {
+    "welcome_message": "Hello! 👋 Welcome to Bayshore Communication. How can I assist you today?",
+    "welcome_video": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    "welcome_video_autoplay": true,
+    "input_placeholder": "Type your question here..."
+  },
+  "launcher": {
+    "position": "bottom-right",
+    "icon_style": "default",
+    "show_bubbles": true,
+    "brand_image_url": "https://i.ibb.co.com/pvcGHgy9/ocrun0jnwtssa3pbky9y.webp"
+  }
+}
