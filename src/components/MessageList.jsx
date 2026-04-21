@@ -206,9 +206,9 @@ export default function MessageList({ messages, isTyping, welcomeVideo, videoAut
           className="flex justify-start"
         >
           <div className="flex items-center space-x-1 rounded-2xl rounded-bl-none bg-white px-4 py-4 shadow-sm border border-gray-100">
-            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-0"></div>
-            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-150"></div>
-            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-300"></div>
+            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:0ms]"></div>
+            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:150ms]"></div>
+            <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 [animation-delay:300ms]"></div>
           </div>
         </motion.div>
       )}

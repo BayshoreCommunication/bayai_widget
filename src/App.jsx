@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import tinycolor from 'tinycolor2';
 import ChatHeader from './components/ChatHeader';
 import MessageInput from './components/MessageInput';
@@ -33,18 +33,38 @@ function App() {
 
   const [isTakeover, setIsTakeover] = useState(false);
   const [isWaitingForOwner, setIsWaitingForOwner] = useState(false);
-  const isTakeoverRef = useRef(isTakeover);
+  const isTakeoverRef = useRef(false);
+  const pendingMessageRef = useRef(null);   // unanswered visitor question during takeover
+  const waitingTimerRef = useRef(null);     // 1-min timeout to hide animation
+  const sendMessageRef = useRef(sendMessage);
+
   useEffect(() => { isTakeoverRef.current = isTakeover; }, [isTakeover]);
+  useEffect(() => { sendMessageRef.current = sendMessage; }, [sendMessage]);
 
   // WebSocket — receive owner replies in real-time
   const handleOwnerReply = useCallback((content) => {
+    clearTimeout(waitingTimerRef.current);
+    pendingMessageRef.current = null;
     setIsWaitingForOwner(false);
     setMessages(prev => [...prev, { role: 'assistant', text: content }]);
   }, []);
 
   const handleTakeoverChange = useCallback((active) => {
     setIsTakeover(active);
-    if (!active) setIsWaitingForOwner(false);
+    if (!active) {
+      clearTimeout(waitingTimerRef.current);
+      setIsWaitingForOwner(false);
+      // Auto-send the visitor's unanswered question to AI
+      const pending = pendingMessageRef.current;
+      if (pending) {
+        pendingMessageRef.current = null;
+        sendMessageRef.current(pending).then((responseText) => {
+          if (responseText) {
+            setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
+          }
+        });
+      }
+    }
   }, []);
 
   useWidgetWebSocket({
@@ -115,12 +135,16 @@ function App() {
 
     const responseText = await sendMessage(text);
     if (responseText) {
+      clearTimeout(waitingTimerRef.current);
+      pendingMessageRef.current = null;
       setIsWaitingForOwner(false);
       setMessages(prev => [...prev, { role: 'assistant', text: responseText }]);
     } else if (responseText === "" || (responseText === null && isTakeoverRef.current)) {
-      // Empty = takeover active; null + takeover = API error during takeover
-      // Keep animation until owner replies via WebSocket
+      // Store pending question, show animation, auto-stop after 1 min if no reply
+      pendingMessageRef.current = text;
       setIsWaitingForOwner(true);
+      clearTimeout(waitingTimerRef.current);
+      waitingTimerRef.current = setTimeout(() => setIsWaitingForOwner(false), 60_000);
     }
   };
 
